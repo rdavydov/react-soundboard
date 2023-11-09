@@ -13,10 +13,13 @@ body {
 
 .soundboard {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* 100% of the viewport height */
+  padding: 20px;
 }
+
 
 button {
   font-size: 18px;
@@ -31,4 +34,32 @@ button {
 
 button:hover {
   background-color: #0056b3;
+}
+
+.sound-item button:last-child {
+  margin-left: 10px;
+}
+
+.sound-item button {
+  background-color: #242424;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  margin: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.sound-item button.playing {
+  background-color: #0a4623;
+}
+
+.sound-item button.stopped {
+  background-color: #5b1810;
+}
+
+.sound-item button.played {
+  background-color: #ccc; /* Light grey color */
 }

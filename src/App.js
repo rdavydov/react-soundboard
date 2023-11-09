@@ -19,51 +19,70 @@ function Soundboard() {
       };
     });
     setSoundFiles(files);
+    return () => {
+      soundFiles.forEach((sound) => {
+        sound.audio.removeEventListener('ended', () => handleAudioEnded(sound.audio));
+      });
+    };
   }, []);
 
   const togglePlayPause = (index) => {
     const updatedSoundFiles = [...soundFiles];
     const sound = updatedSoundFiles[index];
-
+  
     if (sound.isPlaying) {
       sound.audio.pause();
+      // sound.audio.currentTime = 0; // Reset playback position to the beginning
+      updatedSoundFiles[index].isPlaying = false;
+      document.getElementById(`soundButton${index}`).classList.remove('playing');
     } else {
       sound.audio.play();
+      updatedSoundFiles[index].isPlaying = true;
+      document.getElementById(`soundButton${index}`).classList.add('playing');
     }
-
-    sound.isPlaying = !sound.isPlaying;
+  
     setSoundFiles(updatedSoundFiles);
   };
-
+  
   const stopSound = (index) => {
     const updatedSoundFiles = [...soundFiles];
     updatedSoundFiles[index].audio.pause();
-    updatedSoundFiles[index].audio.currentTime = 0; // Reset audio playback position to the beginning
+    updatedSoundFiles[index].audio.currentTime = 0; // Reset playback position to the beginning
     updatedSoundFiles[index].isPlaying = false;
+    document.getElementById(`soundButton${index}`).classList.add('stopped');
     setSoundFiles(updatedSoundFiles);
+  
+    // Remove the 'stopped' class after 1 second
+    setTimeout(() => {
+      document.getElementById(`soundButton${index}`).classList.remove('stopped');
+      document.getElementById(`soundButton${index}`).classList.remove('playing');
+    }, 1000);
   };
 
   const handleAudioEnded = (audio) => {
-    const index = soundFiles.findIndex((sound) => sound.audio === audio);
-    if (index !== -1) {
-      const updatedSoundFiles = [...soundFiles];
-      updatedSoundFiles[index].isPlaying = false;
-      setSoundFiles(updatedSoundFiles);
-    }
+    setSoundFiles(prevSoundFiles => {
+      const updatedSoundFiles = prevSoundFiles.map((sound) => {
+        if (sound.audio === audio) {
+          return { ...sound, isPlaying: false };
+        }
+        return sound;
+      });
+      return updatedSoundFiles;
+    });
   };
-
+  
   return (
     <div className="soundboard">
       {soundFiles.map((sound, index) => (
         <div key={index} className="sound-item">
-          <button onClick={() => togglePlayPause(index)}>
-            {sound.isPlaying ? '⏸️' : '▶️'} {sound.name}
+          <button id={`soundButton${index}`} onClick={() => togglePlayPause(index)}>
+            {sound.isPlaying ? '⏸️' : '▶️'} {sound.name.replace('/static/media/', '').split('.')[0]}.mp3
           </button>
           <button onClick={() => stopSound(index)}>⏹️</button>
         </div>
       ))}
     </div>
-  );
+  );  
 }
 
 function App() {
